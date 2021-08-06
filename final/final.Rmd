@@ -1,0 +1,153 @@
+---
+title: "Final"
+author: "Nikhil Gopal"
+date: "4/15/2021"
+output: pdf_document
+---
+
+```{r}
+rm(list = ls())
+#setwd("C:/Users/d/Google Drive/Notability/Categorical Data/psets/final")
+
+```
+
+**Question 1**
+
+
+
+```{r}
+
+msparrownest <- read.csv("msparrownest.csv", header=T)
+
+
+sparrow <- glm(y~x, data = msparrownest, family = "binomial")
+
+summary(sparrow)
+
+
+plot(jitter(y, .2) ~ x, data=msparrownest, main = "Nesting Success Probablity vs Wingspan" 
+     ,ylab="Nesting Success Probability", xlab= "Wingspan",
+     pch=19, xlim=c(8, 17))
+
+x <- seq(10, 15, .125)
+
+preds <- predict(sparrow, data.frame(width=x), se.fit=T)
+
+logistic <- function(u){ exp(u) / (1 + exp(u)) }
+
+lines(x, logistic(preds$fit), col="red", lwd=2)
+
+lines(x, logistic(preds$fit - 1.96 * preds$se.fit), lty=2,col="blue", lwd=2)
+
+lines(x, logistic(preds$fit + 1.96 * preds$se.fit), lty=2,col="blue", lwd=2)
+```
+
+The curve implies that the probability of nesting success increases as wingspan increases. However, the confidence interval is quite wide, meaning the probability could lie within a large range of values. Additionally, the data points at the top and the bottom of the graph seem to suggest that there is no real correlation between wingspan and nesting success probability, as there are only a few points with larger wingspan that have a higher nesting success probability. The logistic function also results in the confidence bands not being symmetrical, as it cannot output negative values. Wider confidence bands would mean that the possible values could be further away from the curve. I would say the curve is a little bit deceiving. 
+
+
+**Question 2**
+
+```{r}
+
+azdiabetes <- read.csv("azdiabetes.csv", header=T)
+
+
+```
+
+2a:
+
+
+```{r}
+azdiabetes$diabetes <- ifelse(azdiabetes$diabetes == "Yes", 1, 0)
+
+
+mod2 <- glm(diabetes~age+bmi+bp+npreg, data = azdiabetes, family = "binomial")
+
+summary(mod2)
+
+```
+
+$$logit(Diabetes) = -6.112557+0.049747(age)+0.106890(bmi)-0.001186(bp)+0.075969(npreg)$$
+
+2b:
+
+```{r}
+
+CI <- exp(confint(mod2))
+
+CI
+
+#Age 40-25 = 15
+1.0262831800^15;1.077273604^15
+
+# [1.475734, 3.054149]
+
+#BMI 35-30 = 5
+1.0773693898^5;1.151562832^5
+
+# [1.45152,2.025061]
+
+```
+The confidence interval for diabetes was [1.475734, 3.054149] and for BMI was [1.45152,2.025061]. We are 95% confident that the true conditional odds ratios lies within those intervals.
+
+We are 95% confident that the true increase in conditional odds for a 5 unit increase in BMI is between the values [1.45152,2.025061]. We are also 95% confident that the true increase in conditional odds for a 15 unit increase in age is between [1.475734, 3.054149]. This would make sense intuitively, as increases in Age and BMI should make one more likely to have diabetes. 
+
+
+**Question 2c**
+
+```{r}
+anova(mod2, glm(diabetes~age+bmi, data = azdiabetes, family = binomial), test = "Chisq")
+
+```
+
+Ho: coefficients on BP/npreg = 0
+Ho: coefficients on BP/npreg != 0
+
+The anova above tested the hypothesis that the coefficients of bp and npreg were simultaneously zero. Had the coefficients been zero, these variables would not have an effect on the outcome, and thus there would be no difference between the models. The hypothesis test returned a p value of 0.1305. Since the p value is above 0.05, we fail to reject the null hypothesis, and cannot be sure that the cp and npreg coefficients are simultaneously not equal to zero.
+
+
+
+**Question 3**
+
+```{r}
+prayer <- read.csv("prayer.csv", header=T)
+
+prayer$prayer <- as.factor(prayer$prayer)
+prayer$female <- as.factor(prayer$female)
+
+library(MASS)
+
+simple <- polr(prayer ~ female + vocab, data = prayer, method = "logistic")
+
+comparison <- polr(prayer ~ 1, data = prayer, method = "logistic")
+
+anova(simple, comparison)
+
+
+
+```
+Add interaction term and test GOF: 
+
+```{r}
+
+interaction <- polr(prayer ~ female + vocab + vocab:female, data = prayer, method = "logistic")
+
+anova(simple, interaction)
+
+summary(interaction)
+```
+Our first anova for the simple model returned a p value 1.253442e^-12, meaning that we can say with confidence that our model with gender/vocab as parameters fits the data better than the simple model. Our second anova between the simple model and the interaction term returned a p value of 0.01864349, meaning we can also say with confidence that our interaction model fits the data better than the simple model
+
+Our model has the following prediction equations (for all of these subsitute the proper intercept for the requisite value of Prayer:
+
+female:
+
+$$logit(\hat{P(Prayer \leq J_i)}) = a_i + 1.59665-(-0.16259(vocab))$$
+male:
+
+$$logit(\hat{P(Prayer \leq J_i)}) = a_i-(-0.02726(vocab))$$
+
+An ordinal logistic regression model was chosen for this data since the outcome variable (Prayer) was ordinal. Simple logistic regression would not work since the outcome variable was not binary (6 categories), and a loglinear model would not work as the outcome variable does not have a poisson distribution (it is ordinal). This model will allow us to predict an individual's frequency of prayer using their gender and number of items correct on a vocab test.
+
+Our model had a coefficients of 1.59665 for female, -0.02726 for vocab score and -0.13533 for the interaction term (female:vocab). The odds of being in a higher category for females decreases by a factor 0.8499396 for each question answered correctly on a vocab test. The odds of being in a higher category for males decreases by a factor 0.9731082 for each question answered correctly on a vocab test. Given this difference in odds ratios, we are certain that the vocab scores effect on prayer is differs across genders. 
+

@@ -1,0 +1,456 @@
+---
+title: "HW5"
+author: "Nikhil Gopal"
+date: "3/29/2021"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+**Question 1**
+
+
+```{r}
+
+Crabs <- "http://users.stat.ufl.edu/~aa/cat/data/Crabs.dat"
+
+Crabs <- read.table(file=Crabs, header=T)
+
+m1 <- glm(y ~ weight + factor(color), data=Crabs, family=binomial)
+
+
+```
+
+
+1a:
+
+```{r}
+
+summary(m1)
+
+
+```
+
+
+$$logit[\hat\pi] = -3.2572 + 1.69289(weight) + 0.1448(color2) + -0.1861(color 3) +-1.2694(color4)$$
+color 2:
+$$logit(\hat\pi) = -3.1124 + 1.6928*weight$$
+color 3:
+$$logit(\hat\pi) = -3.4422 + 1.6298*weight$$
+
+
+color 4:
+$$logit(\hat\pi) = -4.5266 + 1.6298*weight$$
+
+color 1:
+$$logit(\hat\pi) = -3.2572 + 1.6928*weight$$
+
+```{r}
+x <- seq(1.2, 5.2, .05)
+
+plot(y ~ weight, data=Crabs, type="n")
+
+for(k in 1:4){
+  lines(x, predict(m1, data.frame(weight=x, color=k),type="response"), col=k,
+        lty=k, lwd=2)
+  }
+
+legend("bottomright", inset=.05, lty=1:4, col=1:4, lwd=2,legend=paste("color ", 1:4))
+```
+
+$$logit(\hat\pi) = -1.6203 + 1.0483*weight-0.832c2-6.2964c3+0.4335c4+0.3613c2weight+2.7065c3weight - 0.8536c4weight$$
+color 2:
+
+$$logit(\hat\pi) = -2.4523 + 1.4096*weight$$
+color 3:
+
+$$logit(\hat\pi) = -7.9167 + 3.7548*weight$$
+color 4:
+
+$$logit(\hat\pi) = -1.1868 + 0.1947 * weight$$
+
+color 1:
+
+$$logit(\hat\pi) = -.1.1868 + 0.1947 * weight$$
+
+With the interaction term, the curves start moving differently for each color, and take different shapes. There is still a general trend of satellites being more likely with higher weights, but the curve is much steeper for color 3, and much flatter for curve 4.
+
+
+
+1b:
+
+```{r}
+
+m2 <- update(m1, ~ weight*factor(color))
+
+
+summary(m2)
+```
+
+$$logit[\hat P(Y = 1)] = -1.6203+1.0483(weight)-0.832(color2)-6.2964(color3)+0.4335(color4)+0.3613(weight:color2)+2.7065(weight:color3)+-0.8536(weight:factor4)$$
+
+```{r}
+plot(y ~ weight, data=Crabs, type="n")
+
+for(k in 1:4){lines(x, predict(m2, data.frame(weight=x, color=k),type="response"), col=k, lty=k, lwd=2)}
+
+legend("bottomright", inset=.05, lty=1:4, col=1:4, lwd=2,legend=paste("color ", 1:4))
+
+```
+
+The probability of having satellites increases as weight increases for every color. Colors 1-3 appear to trend toward having similar probabilities as weight increases. Color 4 still shows an increase in probability as weight increases, but the probability is much lower and the increase is much less.
+
+c:
+
+```{r}
+library(lmtest)
+lrtest(m1, m2)
+
+```
+
+
+Our likelihood-ratio test returned a Chi-Square statistic of 6.886 on 3 df. The p value was 0.07562. This means that we cannot definitively say that our interaction model fits the data better than our simple model. The simple model has an AIC of 198.54 and the interaction model has an AIC of 197.66.
+
+
+**Question 2**
+
+2a:
+
+```{r}
+
+mb <- read.table("http://users.stat.ufl.edu/~aa/cat/data/MBTI.dat", header = T)
+
+mb$p <- mb$drink/mb$n
+
+mb.mod <- glm(p ~ EI + SN + TF + JP, family=binomial, weights=mb$n, data = mb)
+
+modd <- glm(p ~ EI * SN * TF * JP, family=binomial, weights=mb$n, data = mb)
+
+
+mb.mod$deviance; mb.mod$df.residual
+
+1 - pchisq(mb.mod$deviance, mb.mod$df.residual)
+
+anova(mb.mod, modd, test = "Chisq")
+
+```
+The residual deviance is 11.14907. The p value for the GOF test is also about 0.43, meaning that we fail to reject our null hypothesis and thus we do not have evidence of a lack of fit, indicating that our simple model is fine compared to the complex model. 
+
+2b:
+
+I would remove the JP term, as it was shown to not be statistically significant, and thus we are unsure that it actually has an effect on the proportion who drink.
+
+
+2c:
+
+```{r}
+mb.inter <- glm(p ~ EI + SN + TF + JP + EI:SN + EI:TF + EI:JP + SN:TF + SN:JP + TF:JP, family=binomial, weights=mb$n, data = mb)
+
+AIC(mb.mod)
+AIC(mb.inter)
+
+library(lmtest)
+lrtest(mb.mod, mb.inter)
+```
+The likelihood ratio test returned a p value of 0.2847, meaning that we cannot be sure that the interaction model fits the data better than the simpler model, meaning we would choose the simpler model based of the likelihood ratio test.
+
+The AIC of the simple model was 73.99 and the AIC of the interactions model was 78.58, meaning that based of AIC we would also choose the simpler model.
+
+2d:
+
+```{r}
+library(MASS)
+fit7 <- glm(p ~ 1, family = binomial,weights=mb$n, data = mb)
+
+scope <- list(upper=formula(mb.mod), lower=formula(fit7))
+scope2 <- list(upper=formula(mb.inter), lower=formula(fit7))
+
+stepAIC(fit7, direction = "forward", scope = scope2)
+stepAIC(fit7, direction = "forward", scope = scope)
+stepAIC(mb.inter, direction = "backward", scope = scope2)
+stepAIC(mb.mod, direction = "backward", scope = scope)
+
+
+```
+
+The best model is given below, as it has the lowest AIC (71.074):
+
+```{r}
+
+best_mod <- glm(formula = p ~ TF + EI + SN + TF:SN, family = binomial, weights = mb$n, data = mb)
+
+summary(best_mod)
+```
+
+**Question 3**
+
+```{r}
+
+Dept <- rep(1:6, rep(2,6))
+
+Gender <- rep(c("Male","Female"), 6)
+
+Yes <- c(512,89,353,17,120,202,138,131,53,94,22,24)
+
+No <- c(313,19,207,8,205,391,279,244,138,299,351,317)
+
+Data <- data.frame(Dept=Dept, Gender=Gender, Yes=Yes, No=No)
+
+rm(Dept, Gender, Yes, No)
+
+Data
+
+```
+
+
+```{r}
+
+# Dept effect only, no Gender
+m1 <- glm(cbind(Yes,No) ~ factor(Dept), data=Data, family=binomial)
+summary(m1)
+
+```
+
+3a:
+
+```{r}
+
+sat <- update(m1, ~ factor(Dept)*Gender)
+anova(m1, sat, test="Chisq")
+
+```
+
+
+The goodness of fit test returned a p value of 0.001352, indicating that the interaction model fits the data beter than the simple model, with statistical significance.
+
+3b:
+
+```{r}
+Data$y.hat <- (Data$Yes + Data$No) * fitted(m1)
+Data$resid <- rstandard(m1, type="pearson")
+Data
+```
+
+The residuals for those applicants to department 1 were relatively large compared to the other departments about 4.15, however the model was able to predict with greater accuracy an applicant's likelihood of gaining admission for the other departments, with residuals of between about 0.55-1.0.
+
+3c:
+
+```{r}
+m2 <- update(m1, ~ . + Gender)
+exp(coef(m2))
+
+```
+As shown in the output above, the conditional odds ratio between admissions and gender is about 0.90.
+
+
+3d
+
+```{r}
+Count <- c(sum(Data$Yes[Data$Gender=="Male"]),sum(Data$Yes[Data$Gender=="Female"]),sum(Data$No[ Data$Gender=="Male"]),sum(Data$No[ Data$Gender=="Female"]) )
+
+Table <- matrix(Count, 2, 2)
+
+rownames(Table) <- c("Male", "Female")
+colnames(Table) <- c("Yes", "No")
+Table
+Table[1,1] * Table[2,2] / ( Table[1,2] * Table[2,1] )
+# Also
+m1a <- update(m1, ~ Gender)
+
+exp(coef(m1a))
+```
+
+
+As demonstrated in the output above, the marginal table, collapsed over department, has odds ratio 1.84.
+
+
+3e 
+```{r}
+admit_rates <- data.frame(
+  
+  Dept <- c(1,2,3,4,5,6),
+  Male <- c(0.620606061,
+0.630357143,
+0.369230769,
+0.330935252,
+0.277486911,
+0.058981233
+),
+  Female <- c(
+    0.824074074,
+0.68,
+0.340640809,
+0.349333333,
+0.239185751,
+0.070381232)
+)
+
+names(admit_rates) <- c("Dept", "Male", "female")
+
+admit_rates
+```
+
+As we can see from the table above, there does not appear to be a large disparity in the admission rates to the departments between genders, they are all relatively similar for each department (except department 1). However, there is a big difference in the admission rates between departments, which explains the difference in the Odds Ratios.
+
+Additionally, this is an example of simpson's paradox (like the baseball problem). When divided along different categories, different conclusions can be made as to what improves or supresses one's chances of admission. However, associations are not always causal, which explains the disparities between the associations. Maybe males tend to apply more often to departments that have higher acceptance rates, which does not necessarily mean that the school is discriminating against males.
+
+
+
+**Question 4**
+
+```{r}
+filename <- "http://users.stat.ufl.edu/~aa/cat/data/Alligators2.dat"
+
+Data <- read.table(file=filename, header=T)
+
+names(Data) <- c("lake","size","F","I","R","B","O")
+
+Sizes <- c(" < 2.3", " > 2.3")
+
+Data$Size <- factor(rep(Sizes, 4), levels=Sizes[c(2,1)])
+
+Lakes <- c("George", "Hancock", "Oklawaha", "Trafford")
+
+Data$Lake <- factor(rep(Lakes[c(2,3,4,1)], rep(2,4)), levels=Lakes)
+
+library(VGAM)
+```
+
+
+4a:
+
+```{r}
+fit <- vglm(cbind(I,R,B,O,F) ~ Size + Lake, data=Data, family=multinomial)
+
+coefs <- round(coef(fit), 2)
+
+coefs <- matrix(coefs, 4, 5)
+
+rownames(coefs) <- paste("log(pi[", c("I","R","B","O"), "]/pi[F])",sep="")
+
+colnames(coefs) <- c("Intercept", "Length<2.3","Hancock", "Oklawaha", "Trafford")
+
+summary(fit)
+```
+
+Invertebrates: 
+
+$$log() = -1.55 + 1.46(size) -1.66(hancock) + 0.94(Oklawaha) + 1.12(Trafford)$$
+
+Reptiles:
+
+$$log() = -3.31 + -0.35(size) + 1.24(hancock) + 2.46(Oklawaha) + 2.94(Trafford)$$
+
+
+
+Birds:
+
+$$log() = -2.09 + -0.63(size) + 0.7(hancock) + -0.65(Oklawaha) + 1.09(Trafford)$$
+
+Others:
+
+$$log() = -1.9 + 0.33(size) + 0.83(hancock) + 0.006(Oklawaha) + 1.52(Trafford)$$
+
+4b:
+
+The coefficient on length for invertebrates is about 1.46. This means that the log odds of having Invertebrates instead of fish as the primary food choice increases if the alligator's length is less than 2.3 meters. For a given lake, the log odds that the food choice is an invertebrate increases by about 4.29 for a given value.
+
+4c:
+
+```{r}
+a <- data.frame( 
+  "lake" = c("H > 2.3", "H < 2.3", "O > 2.3", "O < 2.3", "T > 2.3", "T < 2.3", "G > 2.3", "G < 2.3"),
+  "Probability" <- fitted(fit)[,5]
+  
+  )
+
+names(a) <- c("lake", "Probability")
+
+a
+
+```
+
+The above output lists the probability that the primary food choice is fish for each length. For length > 2.3 meters in lake Okalawaha, the probability that the primary food choice is fish is 0.2581861, for length < 2.3 meters, the probability is 0.4584385.
+
+**Question 5**
+
+5a:
+
+prediction equation:
+
+$$log(\hat\pi_r/\hat\pi_D)=-2.3+0.5x$$ 
+
+5b:
+
+$$0 = log(1/1) = -2.3 + 0.5x$$
+
+$$x  = 4.6$$
+
+Thus, pi_hat_R > pi_hat_D when annual income exceeds $46,000.
+
+5c:
+
+$$\hat\pi_I(x) = 0 + 0x$$
+$$\hat\pi_I = \frac{e^{0}}{e^{1+0.3x} + e^{3.3 - 0.2x} + e^{0}}$$
+$$\hat\pi_I = \frac{1}{e^{1+0.3x} + e^{3.3 - 0.2x} + 1}$$
+**Question 6**
+
+```{r}
+
+Not <- c(6,6,6); 
+Pretty <- c(43,113,57); 
+Very <- c(75,178,117);
+Income <- c("Below", "Average", "Above")
+scores = c(1,2,3)
+data.frame(Income, Not, Pretty, Very)
+
+happy <- vglm(cbind(Pretty, Very, Not) ~ scores, family=multinomial)
+```
+6a:
+
+```{r}
+coef(happy)
+```
+
+$$log(\hat\pi_1 / \hat\pi_3) = 2.2038939 + 0.1313533x$$
+
+$$log(\hat\pi_2 / \hat\pi_3) = 2.5551795 + 0.2275057x$$
+
+
+
+6b:
+
+Since the beta coefficient for income is positive, the odds of being in the higher category increase as income increases (from not happy > pretty happy in the 1st equation and not happy > very happy in the second equation).
+
+6c:
+
+```{r}
+lrtest(happy)
+
+anova.vglm(happy)
+```
+
+
+The likelihood ratio test returned a chi square statistic of 0.94 on 2 degrees of freedom, which corresponds to a p value of 0.62. We thus do not have evidence that our model fits the data better than the simple model, and thus we do not have evidence that happiness is independent of income.
+
+
+6d:
+
+```{r}
+summary(happy)
+
+1-pchisq(3.1909, 2)
+```
+The deviance goodness of fit test returned a p value of 0.2028172. Thus, we can safely say that our model fits the data well.
+
+
+6e:
+
+```{r}
+predict(happy,data.frame(score=2), type="response")
+```
+
+
+The probability that someone with average family income reports a very happy marriage is 0.6135187.

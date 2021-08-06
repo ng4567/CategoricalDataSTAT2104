@@ -1,0 +1,221 @@
+---
+title: "HW2"
+author: "Nikhil Gopal"
+date: "2/8/2021"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+**Question 1**
+
+Estimate for odds ratio is about 220:
+
+````{r}
+setwd("C:/Users/d/Google Drive/Notability/Categorical Data/psets/HW2")
+
+#Odds ratio: 
+
+(802*494) / (34*53)
+```
+
+This means that someone who voted for Obama in 2008 was about 220 times more likely to vote for Obama in 2012 than someone who voted for McCain.
+
+
+#95% CI/OR
+````{r}
+
+library(epitools)
+
+
+table<-matrix(c(802,34,53,494),nrow = 2, ncol = 2)
+
+rownames(table) <- c("Obama", "McCain")
+colnames(table) <- c("Obama", "Romney")
+
+table
+
+oddsratio.wald(table)
+
+````
+
+
+
+
+The 95% CI for the population odds-ratio was 140.89-343.0917. We are 95% confident that the true population odds ratio lies within the interval.
+
+**Question 2**
+
+````{r}
+
+library(DescTools)
+table2<-matrix(c(871,347,821,42,336,83),nrow = 2, ncol = 3)
+
+rownames(table2) <- c("White", "Black")
+colnames(table2) <- c("Democrat", "Republican", "Independent")
+
+#Chi Square
+chisq.test(table2)
+
+#Log-Likelihood
+DescTools::GTest(table2,
+                 correct = "none")
+````
+Both the Chi-square and Log-likelihood tests returned p values that were less than 0.01. We can thus conclude with statistical significance that there political affiliation and race are independent
+
+Residuals:
+
+````{r}
+
+chisq.test(table2)$stdres
+```
+
+Standardized residuals give the predicted-expected frequencies in a contigency table divided by the standard error. The residuals are standardized because dividing by standard error means that the residuals are normally distributed. For democrats, whites returned a residual of -11.966 and for Republicans blacks returned a residual of -12.999. Since these residuals are standardized, this provides extremely strong evidence that more people would be in these cells if party ID were independent of race, which helps provide more evidence against our null hypothesis that party is not independent of race.
+
+
+**Question 3**
+
+It is not valid to apply the Chi-square test for this table, since the same person can be in multiple columns. Participants were instructed to select however many columns they thought were true, which violates the independence assumption of the chi-square test.
+
+We are able to cross classify because we know how many people were sampled originally. subtracting the observed values from 100 will give us the number of people of each gender who said no to that variable being responsible for an increase in teenage crime.
+
+table for part c:
+
+````{r}
+#contingency table for factor A
+table3 <- matrix(c(60,75,100-60,100-75,100,100), nrow = 2, ncol = 3) 
+rownames(table3) <- c("Men", "Women")
+colnames(table3) <- c("Y", "N", "Total")
+table3
+````
+
+d:
+
+Odds ratio =
+
+$$=\frac{n_{11}n_{22}}{n_{12}n_{21}} = \frac{\frac{n_{1+}n_{+1}}{n}\frac{n_{2+}n_{+2}}{n}}{\frac{n_{1+}n_{+2}}{n}\frac{n_{2+}n_{+1}}{n}} = \frac{{\hat{\mu}}_{11}{\hat{\mu}}_{22}}{{\hat{\mu}}_{12}{\hat{\mu}}_{21}} = 1$$
+
+
+Therefore, ${\hat{\mu}}_{ij}$ satisfies the independence hypothesis.
+
+
+
+**Question 4**
+
+a:
+
+The sum of the other variables is multiplied by n, which means that as n increases, the X^2 statistic will also increase.
+
+b:
+
+Chi square tests do not return different results for ordinal data. The test only factors in row and column totals, and not order/direction of the data, which means that the test cannot provide information about association.
+
+c:
+
+The estimated expected frequency of row i and column j:
+
+$${\hat{\mu}}_{ij} = \frac{n_{i+}n_{+j}}{n}$$
+
+
+Total estimated expected frequency row i:,
+
+$$=\sum_{j}\frac{n_{i+}n_{+j}}{n} = \frac{n_{i+}}{n}\sum_{j} n_{+j} = n_{i+}$$
+
+
+Total estimated expected frequency of col j:
+
+$$=\sum_{i}\frac{n_{i+}n_{+j}}{n} = \frac{n_{+j}}{n}\sum_{i} n_{i+} = n_{+j}$$
+
+Thus, $\{{\hat{\mu}}_{ij}\}$ have the same row and column totals as $\{n_{ij}\}$.
+
+
+
+
+**Question 5**
+
+````{r}
+
+table5 <- matrix(c(7,8,0,15),nrow = 2, ncol = 2)
+rownames(table5) <- c("Normalized serum", "Not Normalized")
+colnames(table5) <- c("Treatment", "Control")
+
+fisher.test(table5, alternative = "greater")
+
+
+````
+
+Fisher's test gives us an exact p-value unlike the chi-square test which only gives an approximation. In this case, p = 0.003161. Since the p value is so low, we have extremely strong evidence against our Ho that there was no difference in results between treatment and control groups, meaning that results were significantly better in the treatment group.
+
+
+**Question 6**
+
+
+a:
+
+Let's imagine a situation in which Maine has more old people, and South Carolina has more poor people than Maine at every age group, but less old people. Poor people are more likely to die than rich people, leading to South Carolina having higher death rates across all age groups. Old people are more likely to die than young people, so in total Maine might have a higher total death rate since they have more old than young people.
+
+
+b:
+
+As explained by Simpson's paradox, this situation is possible:
+
+````{r}
+
+table6 <- matrix(c(320,180,800,400,0.8,0.9,80,200,400,800,0.4,0.5,0.333,0.316), nrow = 2, ncol = 7)
+rownames(table6) <- c("Jones", "Simpson")
+colnames(table6) <- c("Hits '19", "At Bats '19", "BA '19", "Hits '20", "At Bats '20", "BA '20", "Total BA")
+
+table6
+
+````
+
+**Question 7**
+
+a:
+
+True. When 2 variables are independent the ratio of their odds is 1.
+
+b:
+
+True
+
+c:
+
+False. Odds ratio would be different if you used marijuana as the denominator instead of numerator when calculating the ratio, but it has nothing to do with if the variable is response or explanatory.
+
+d:
+
+True. Chi-square tests do not provide different results for ordinal data than nominal data.
+
+
+e:
+
+False. Two variables can be conditionally independent but not generally independent.
+
+f:
+
+true
+
+
+**Question 8**
+
+a:
+
+A slope of -0.0662 in the linear probability model indicates that the probability of the pitcher pitching a complete game is predicted to decrease by -0.0662 for each decade that passes.
+
+b:
+
+0.6930 − (0.0662*12) = -0.1014. Obviously a pitcher cannot have a negative probability of pitching a full game so this model is not valid for x = 12.
+
+c:
+
+$$P(Y) = \frac{e^(a+bX)}{1+e^(a+bX)}$$
+
+
+$$\hat{\pi} = \frac{exp(1.057-0.368*x)}{1+exp(1.057-0.368*x)} | x = 12, = 0.0336$$
+
+This prediction is obviously more plausible, since it has a positive value. A negative value is logically impossible.
+
+
+

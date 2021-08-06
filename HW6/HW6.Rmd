@@ -1,0 +1,355 @@
+---
+title: "HW6"
+author: "Nikhil Gopal"
+date: "4/13/2021"
+output: pdf_document
+---
+
+**Question 1**
+
+```{r}
+
+setwd("C:/Users/d/Google Drive/Notability/Categorical Data/psets/HW6")
+
+rm(list = ls())
+```
+
+1a:
+
+In cumulative logit models with the proportional odds property, the interpretation of the coefficients must be flipped since the regression output gives the log odds of being in a higher category. With this in mind
+
+For x1, the coefficient was -0.54, indicating that the response level increases with an increase in x1. Thus, job satisfaction increases at higher x1 (earnings compared to similar positions = much less) increase.
+
+For x2, the coefficient was 0.60, indicating that the response level will increase as x2 decreases Thus, job satisfaction increases at lower x2 (freedom to make decisions).
+
+For x3, the coefficient was 1.19, again indicating that the response level will increase as x3 decreases. Thus job satisfaction increases at lower x3 (work environment allows productivity).
+
+
+1b:
+
+Since the coefficient is negative for x1, job satisfaction is highest at the highest category (x1 = 4), when earnings are much more than others in similar positions.
+
+Since the coefficient is positive for x2, job satisfaction is highest at the lowest category (x2 = 1), when an individual is very free to make decisions on how to do a job.
+
+Since the coefficient is positive for x3, job satisfaction is highest at the lowest category (x3 = 1), when they strongly agree that the work environment allows productivity.
+
+Thus the settings for x1,x2 and x3 where an individual will have the highest job satisfaction are x1 =4, x2 =1 and x3=1.
+
+1c:
+
+This equation is the reciprocal of the prediction equation, so it will be the same equation with the signs of the slopes being flipped.
+
+**Question 2**
+
+2a:
+
+```{r}
+library(VGAM)
+
+Not <- c(6,6,6);
+Pretty <- c(43,113,57);
+Very <- c(75,178,117);
+Income <- c("Below", "Average", "Above")
+data.frame(Income, Not, Pretty, Very)
+
+scores<-c(1,2,3)
+
+logit_mod <- vglm(cbind(Not, Pretty, Very) ~ scores, family = cumulative(parallel=TRUE))
+
+summary(logit_mod)
+```
+
+
+Prediction equations:
+
+j = 1:
+
+$$logit[P( \hat Y \leq1)] = -3.2466 -0.1117 * score$$
+
+
+j = 2:
+
+$$logit[P( \hat Y \leq 2)] = -0.2378 -0.1117 * score$$
+
+
+2b:
+
+For any fixed J, an increase in income from a lower to a higher score group will increase the odds of being happy by exp(-0.1117423) = 1.118225.
+
+2c:
+
+$$Ho = \beta = 0$$
+
+$$Ha = \beta != 0$$
+
+
+A slope of zero would indicate that income has no effect on marital happiness, and a non-zero slope would indicate that income has has an effect on marital happiness, and that the two variables are not independent.
+
+```{r}
+
+lrtest(logit_mod)
+
+```
+
+The likelihood ratio test returned a Chi-Square statistic of 0.8876 on 1 DF and a p-value of 0.3461. Since our p value is higher than the typical 0.05% significance level, we do not have enough evidence to reject our null hypothesis, and cannot conclude that income has an effect on marital happiness.
+
+2d:
+
+The residual deviance of our model is 3.2472 on 3 DF. We can run a deviance goodness of fit test:
+
+Ho : Model fits adequately
+
+Ha: Model does not fit adequately
+
+```{r}
+1-pchisq(3.2472, 3)
+
+```
+Our deviance goodness of fit test returned a p value of 0.3550593. Since the p value is greater than 0.05, we can confidently say that the model fits adequately. 
+2e:
+
+```{r}
+
+predict(logit_mod, data.frame(scores = 2), type="response")
+
+```
+
+The probability that someone with average family income reports a very happy marriage is 0.6133082.
+
+**Question 3**
+
+
+```{r}
+
+
+data <- matrix(c(833,125,2,160),ncol=2,byrow=TRUE)
+colnames(data) <- c("Hell (Yes)","Hell (No)")
+rownames(data) <- c("Heaven (Yes)","Heaven (No)")
+Heaven_Hell <- as.table(data)
+data
+
+
+```
+
+3a
+
+Ho: Population proportions answering yes are the same for heaven/hell.
+
+Ha: Population proportions answering yes are not the same for heaven/hell.
+
+Since the data is paired and nominal, a McNemar's test is appropriate.
+
+```{r}
+mcnemar.test(data, correct = F)
+
+```
+
+Our hypothesis test returned a chi-square statistic of 119.13 and a p value of < 2.2 e^-16 or near extremely close to zero. We therefore reject our null hypothesis, and have enough evidence to conclude that the population proportions are not the same for answering yes for Heaven and Hell.
+
+3b:
+
+```{r}
+SE <- 1/1120 * sqrt( 125 + 2 - (125-2)^2 / 1120)
+
+lower_bound  <- ((125 - 2) / 1120) - 1.64 * SE 
+
+upper_bound  <- ((125 - 2) / 1120) + 1.64 * SE 
+
+lower_bound
+upper_bound
+```
+The 90 % confidence interval for the true difference in proportions for those who believe in Heaven and Hell is [0.09422201, 0.1254208]. We are 90% confident that the true difference in proportions lies within the interval.
+
+**Question 4**
+
+4a:
+
+```{r}
+dat <- read.table("http://users.stat.ufl.edu/~aa/cat/data/DeathPenalty.dat", header = TRUE)
+
+log_lin <- glm(count ~ (D+V+P)^2, family = "poisson", data = dat)
+
+summary(log_lin)
+```
+
+Goodness of fit test:
+
+```{r}
+
+1-pchisq(0.37984, 1)
+
+```
+
+The deviance Goodness of Fit test returned a p value of 0.5376889, using a residual deviance of 0.37984 on 1 DF. Since the p value is above 0.05, we are confident that the model fits the data adequately.
+
+4b:
+
+The predicted conditional odds ratio between D and P at each category of V is exp(-0.8678) = 0.4198743. If the race variable is kept constant, the estimated odds of a white defendant getting the death penalty is 0.4198743 that of a black defendant.
+
+4c:
+
+odds ratio calculation:
+
+```{r}
+
+((53+0) / (414+16)) / ((11+4) / (139+37))
+
+```
+The marginal odds ratio between D and P is 1.446202, meaning that the estimated odds of a white person receiving the death penalty is 1.446202 times higher compared to a black person.
+
+Simpson's paradox is when trends are observed in groups of data but disappear or reverse when groups are combined. This is exactly what happened in this case, as marginally whites have a higher chance of receiving the death penalty, but when controlled for race, it is clear that blacks have a higher chance of receiving the death penalty. 
+
+4d:
+
+```{r}
+
+dataaa <- data.frame("D" = c("white", "black", "white", "black"),
+                    "V" =c("white", "white", "black", "black"),
+                    "Y" = c(53, 11, 0, 4),
+                    "N" = c(414, 37, 16, 139))
+
+
+logistic <- glm(cbind(Y, N) ~ D+V, data = dataaa, family = "binomial")
+
+summary(logistic)
+```
+
+Prediction equation:
+
+$$logit(\hat{\pi}) = -3.5961-0.8678*Dwhite + 2.4044 * Vwhite$$
+
+The coefficient for defendant race = white was -0.8678 and the coefficient for victim race = white was 2.4044. These are the same as the coefficients in the loglinear model.
+
+**Question 5**
+
+5a:
+
+```{r}
+
+#loglinear model of mutual independence
+mbti <- read.table("http://users.stat.ufl.edu/~aa/intro-cda/data/MBTI.dat",
+header = T)
+
+log_lin_mbti <- glm(n ~ EI + SN + TF + JP, family = poisson, data = mbti)
+
+summary(log_lin_mbti)
+
+```
+
+residual deviance GOF test:
+
+```{r}
+
+1 - pchisq(135.87, 11)
+
+```
+
+pearson chisquare:
+
+```{r}
+
+1 - pchisq(sum(residuals(log_lin_mbti, type =
+"pearson")^2), 11)
+
+
+```
+
+
+Ho: The model fits adequately
+
+Ha: The model does not fit adequately
+
+The residual deviance of the model is 135.87 on 11 DF. The pearson chi square statistic is 145.1028. Both goodness of fit tests returned p values of 0. Since this is below the 0.05 significance level, we fail to reject the null hypothesis. The model does not fit adequately. 
+
+
+5b:
+
+```{r}
+
+#model of homogenous association
+mbti2 <- glm(formula = n ~ (EI + SN + TF + JP)^2, family = "poisson", data
+= mbti)
+
+summary(mbti2)
+
+```
+
+
+residual deviance GOF:
+
+```{r}
+1 - pchisq(10.162 , 5)
+```
+
+Pearson Chi Square GOF:
+
+```{r}
+1 - pchisq(sum(residuals(mbti2, type = "pearson")^2), df.residual(mbti2))
+```
+Ho: The model fits adequately
+
+Ha: The model does not fit adequately
+
+The residual deviance is 10.16171 and the Pearson Chi-squared statistic is 10.10336.The residual deviance test returned a p value of 0.07077304 and the pearson test returned a p value of 0.07235899. Since our p value is greater than our significance level of 0.05, we can conclude that this model fits adequately. 
+
+5bi:
+
+Since we are now certain that our model fits adequately, we can be certain that the conditional association is highest between S/N and J/P scales, since this coefficient -1.22153 is higher than any other coefficient, and it is also statistically significant.
+
+5bii:
+
+The z statistic for the ratio between the EI/TF scale was 1.482 (p =0.138258) and for the ratio between the EI/JP scale was 0.134 (p = 0.893261). These p values are greater than the standard significance level of 0.05, indicating that we cannot be certain that the coefficients for these variables are not zero. This might mean that the conditional association between these scales are insignificant.
+
+5c:
+
+```{r}
+
+#model assumes conditional independence 
+mbti3 <- glm(n ~ EI + SN + TF + JP + EI:SN + SN:TF + SN:JP + TF:JP,
+family = "poisson", data = mbti)
+
+summary(mbti3)
+
+
+anova(mbti3, mbti2, test = "Chisq")
+
+```
+
+The difference in deviance is 12.369 - 10.162 = 2.207, and the df is 2. This gives a p-value of 0.3317. Since the p value is greater than 0.05, we can be confident that the simpler model has a better fit than the model of homogenous association.
+
+```{r}
+
+exp(confint(mbti3, method="profile"))
+
+
+```
+
+
+
+5cii: 
+
+The 95% likelihood-ratio confidence interval for the conditional odds ratio between the S/N and J/P scales is [0.2214587, 0.3913279]. We are 95% confident that the that the odds of being N given the odds of being J are within the interval.
+
+5d: 
+```{r}
+
+mbti4 <- glm(formula = n ~ (EI + SN + TF + JP)^3, family = "poisson", data
+= mbti)
+
+
+summary(mbti4)
+```
+
+
+#numbers of parameters
+```{r}
+#loglinear model of mutual independence
+length(coef(log_lin_mbti))
+
+#model of homogenous association
+length(coef(mbti2))
+
+#three factor interactionsL
+length(coef(mbti4))
+```
+The loglinear model of mutual independence has 5 parameters, the model of homogenous association has 11 parameters, and the three factor interaction terms model has 15 parameters.

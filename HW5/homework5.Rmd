@@ -1,0 +1,281 @@
+---
+title: "Applied Categorical Data: Homework 5"
+output: html_notebook
+author: "Kerem Tuncer"
+date: 03/27/2021
+---
+
+## Question 1
+
+### Part A
+
+```{r}
+rm(list = ls())
+crab <- read.table("http://users.stat.ufl.edu/~aa/cat/data/Crabs.dat", header = TRUE)
+```
+
+```{r}
+crab.mod <- glm(y ~ weight + as.factor(color), family="binomial", data=crab)
+summary(crab.mod)
+
+range(crabs$weight)
+
+x <- seq(1.2, 5.2, .05)
+
+plot(y ~ weight, data=crab, type="n")
+
+for(k in 1:4){
+  lines(x, predict(crab.mod, data.frame(weight=x, color=k),
+        type="response"), col=k, lty=k, lwd=2)
+  }
+legend("bottomright", inset=.05, lty=1:4, col=1:4, lwd=2,legend=paste("color ", 1:4))
+```
+
+### Part B
+
+```{r}
+crab.int <- glm(y ~ weight * as.factor(color), family="binomial", data=crab)
+summary(crab.int)
+
+plot(y ~ weight, data = crab, type="n")
+
+for(k in 1:4){
+  lines(x, predict(crab.int, data.frame(weight=x, color=k),
+                   type="response"), col=k, lty=k, lwd=2)
+  }
+legend("bottomright", inset=.05, lty=1:4, col=1:4, lwd=2,legend=paste("color ", 1:4))
+```
+
+### Part C
+
+```{r}
+library(lmtest)
+lrtest(crab.mod, crab.int)
+```
+
+
+## Question 
+
+### Part A
+
+```{r}
+mbti <- read.table("http://users.stat.ufl.edu/~aa/cat/data/MBTI.dat", header = T)
+mbti.p <- mbti$drink/mbti$n
+mbti.mod <- glm(mbti.p ~ EI + SN + TF + JP, family=binomial, weights=mbti$n, data = mbti)
+summary(mbti.mod)
+asat <- glm(mbti.p ~ EI * SN * TF * JP, family=binomial, weights=mbti$n, data = mbti)
+anova(mbti.mod, asat, test="Chisq")
+```
+
+### Part B
+
+If I were to simplify the model by removing a predictor, it would be JP, because it is the least statistically significant.
+
+### Part C
+
+```{r}
+mbti.int <- glm(mbti.p ~ EI + SN + TF + JP + EI:SN + EI:TF + EI:JP + SN:TF + SN:JP + TF:JP, family=binomial, weights=mbti$n, data = mbti)
+AIC(mbti.mod)
+AIC(mbti.int)
+lrtest(mbti.mod, mbti.int)
+```
+
+### Part D
+
+```{r}
+library(MASS)
+fit7 <- glm(mbti.p ~ 1, family = binomial,weights=mbti$n, data = mbti)
+scope <- list(upper=formula(mbti.mod), lower=formula(fit7))
+scope2 <- list(upper=formula(mbti.int), lower=formula(fit7))
+stepAIC(fit7, direction = "forward", scope = scope2)
+stepAIC(fit7, direction = "forward", scope = scope)
+stepAIC(mbti.int, direction = "backward", scope = scope2)
+stepAIC(mbti.mod, direction = "backward", scope = scope)
+```
+
+```{r}
+final.mbti <- glm(formula = mbti.p ~ TF + EI + SN + TF:SN, family = binomial, 
+    data = mbti, weights = mbti$n)
+summary(final.mbti)
+```
+
+## Question 3
+
+### Part A
+
+```{r}
+Dept <- rep(1:6, rep(2,6))
+Gender <- rep(c("Male","Female"), 6)
+Yes <- c(512,89,353,17,120,202,138,131,53,94,22,24)
+No <- c(313,19,207,8,205,391,279,244,138,299,351,317)
+data <- data.frame(Dept=Dept, Gender=Gender, Yes=Yes, No=No)
+rm(Dept, Gender, Yes, No)
+data
+```
+
+```{r}
+m1 <- glm(cbind(Yes,No) ~ factor(Dept), data=data, family=binomial)
+summary(m1)
+sat <- update(m1, ~ factor(Dept)*Gender)
+anova(m1, sat, test="Chisq")
+```
+### Part B
+
+```{r}
+data$y.hat <- (data$Yes + data$No) * fitted(m1)
+data$resid <- rstandard(m1, type="pearson")
+data
+```
+
+### Part C
+
+```{r}
+m2 <- update(m1, ~ . + Gender)
+exp(coef(m2))
+```
+
+### Part D
+
+```{r}
+m1a <- update(m1, ~ Gender)
+exp(coef(m1a))
+```
+
+### Part E
+
+(PARAPHRASE) In taking into consideration simpson’s paradox, in part c when you consider each department, the odds of admission for male vs female is less by department, but if we ignore the department effects males are doing better. Males apply in relatively greater numbers to departments that have relatively higher proportions of acceptances.
+
+## Question 4
+
+### Part A
+
+```{r}
+food <- read.table("http://users.stat.ufl.edu/~aa/cat/data/Alligators2.dat", header = TRUE)
+names(food) <- c("lake","size","F","I","R","B","O")
+Sizes <- c(" < 2.3", " > 2.3")
+food$Size <- factor(rep(Sizes, 4), levels=Sizes[c(2,1)])
+Lakes <- c("George", "Hancock", "Oklawaha", "Trafford")
+food$Lake <- factor(rep(Lakes[c(2,3,4,1)], rep(2,4)), levels=Lakes)
+food
+```
+
+```{r}
+library(VGAM)
+fit <- vglm(cbind(I,R,B,O,F) ~ Size + Lake, data=food, family=multinomial)
+coefs <- round(coef(fit), 2)
+coefs <- matrix(coefs, 4, 5)
+rownames(coefs) <- paste("log(pi[", c("I","R","B","O"), "]/pi[F])",sep="")
+colnames(coefs) <- c("Intercept", "Length<2.3","Hancock", "Oklawaha", "Trafford")
+coefs
+```
+
+### Part B
+
+Since the effect estimate 1.46 > 0, invertebrates are relatively more likely than fish for the small length of alligators. For a given length, the estimated logs odds that primary food choice is invertebrate instead of fish increase multiplicatively by e(1.4581457)= 4.297982 for a given lake.
+
+### Part C
+
+## Question 5
+
+### Part A
+
+The prediction equation is the following:
+
+$$log(\hatπ_R/\hatπ_D) = −2.3+0.5x$$
+
+```{r}
+exp(0.5)
+```
+The estimated odds of preferring Republicans over Democrats increase by 65% for every 10,000.
+
+### Part B
+
+The logit equals 0, and hence the two estimated probabilities are the same, when x = 4.6 in the equation in Part A.
+
+```{r}
+2.3/0.5*10000
+```
+$\hatπ_R > \hatπ_D$ when annual income > $46,000.
+
+### Part C
+
+$$\hat\pi_I(x) = 0 + 0x$$
+$$\hat\pi_I = \frac{e^{\alpha_I + \beta_Ix}}{e^{\alpha_R + \beta_Rx} + e^{\alpha_D +\beta_Dx} + e^{\alpha_I+\beta_Ix}}$$
+
+$$\hat\pi_I = \frac{e^{0+0x}}{e^{1+0.3x} + e^{3.3 - 0.2x} + e^{0+0x}}$$
+
+$$\hat\pi_I = \frac{1}{e^{1+0.3x} + e^{3.3 - 0.2x}}$$
+## Question 6
+
+### Part A
+
+```{r}
+Not <- c(6,6,6); 
+Pretty <- c(43,113,57); 
+Very <- c(75,178,117);
+Income <- c("Below", "Average", "Above")
+data.frame(Income, Not, Pretty, Very)
+```
+
+```{r}
+score = c(1,2,3)
+vglm.ind <- vglm(cbind(Pretty, Very, Not) ~ score, family=multinomial)
+vglm.ind
+```
+$$log(\hat\pi_1 / \hat\pi_3) = 2.2038939 + 0.1313533x$$
+
+$$log(\hat\pi_2 / \hat\pi_3) = 2.5551795 + 0.2275057x$$
+### Part B
+
+Since our Beta > 0, the estimated odds of being in the higher category (pretty happy) instead of the lower category (not happy) increases as income increases. 
+
+```{r}
+exp(0.1313533)
+```
+A unit change in income score will increase the odds of being pretty happy to not happy by a multiplicative effect of 1.140371.
+
+Likewise, since Beta > 0 in the second equation, the estimated odds of being in the higher category (very happy) instead of the lower category (not happy) increases as income increases. 
+
+```{r}
+exp(0.2275057)
+```
+A unit change in income score will increase the odds of being very happy to not happy by a multiplicative effect of 1.255465. This effect of very happy/not happy is larger than that of pretty happy/not happy as expected. These effects suggest that as the income creases, marital happiness increases. However, hypothesis testing is necessary to see if the effect is statistically significant.
+
+### Part C
+
+Null hypothesis: Beta = 0, meaning that there is no effect of income on marital happiness. In other words, the two things are independent.
+
+Null hypothesis: Beta ! 0, meaning that there is an effect of income on marital happiness. In other words, the two things are not independent
+
+```{r}
+lrtest(vglm.ind)
+```
+
+
+Our likelihood test statistic is equal to 0.9439 with df =2 and p-value of 0.6238. Given that the p-value is much larger than 0.05, we do not have enough evidence to conclude that income has an effect on marital happiness.
+
+
+### Part D
+
+```{r}
+summary(vglm.ind)
+```
+
+The residual deviance is 3.1909 and the degrees of freedom is 2. With this information, we can compute a deviance goodness-of-fit test.
+
+```{r}
+1-pchisq(3.1909, 2)
+```
+H0: model fits adequately
+
+Ha: model does not fit adequately
+
+As a result, we get the p-value of 0.2028172. Given that the p-value is above 0.05, we can say that the model fits adequately.
+
+### Part E
+
+```{r}
+predict(vglm.ind,data.frame(score=2), type="response")
+```
+
+The probability that a person with average family income reports a very happy marriage is 0.6135187.

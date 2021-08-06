@@ -1,0 +1,428 @@
+---
+title: "HW4"
+author: "Nikhil Gopal"
+date: "3/14/2021"
+output: pdf_document
+---
+
+**Question 1**
+
+
+```{r}
+#setwd("/Users/nikhilgopal/Google Drive/Notability/Categorical Data/psets/HW4")
+
+LI <- c( 8, 8,10,10,12,12,12,14,14,14,16,16,16,18,20,20,20,22,22,24,26,28,32,34,38,38,38)
+y  <- c(0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,0,1,0,0,1,1,0,1,1,1,0)
+
+
+
+logit_model <- glm(y ~ LI, family = "binomial")
+
+
+summary(logit_model)
+
+
+```
+
+1a:
+
+```{r}
+#1a
+
+new.LI <- data.frame(
+  LI = c(12)
+)
+
+predict.glm(logit_model, newdata = new.LI, type = "response")
+
+
+
+```
+
+probablity = 0.1151908
+
+
+1b:
+
+```{r}
+library(chemCal)
+inverse.predict(logit_model, as.numeric(data.frame(LI = 0)),
+                 ws, alpha=0.05, var.s = "auto")
+
+```
+The percentage of labeled cells at which the probability of remission will be 0.5 is 26.07384.
+
+1c:
+
+```{r}
+
+#calculate odds ratio
+exp(coef(logit_model))
+
+```
+
+A 1 unit increase in LI increases the odds of remission by a factor of 1.15588143 
+
+
+1d:
+
+
+```{r}
+
+new.LI <- data.frame(
+  LI = c(12, 25)
+)
+
+predict.glm(logit_model, newdata = new.LI, type = "response")
+
+```
+
+
+The probability of remission changes from 0.1151908 to 0.4611882 (changes by 0.3459974) with a change from the lower to upper quartiles values of the labeling index.
+
+**Question 2**
+
+2a
+
+```{r}
+0.14486 * 0.1151869*(1- 0.1151869)
+```
+
+At x=12, the estimated ROC is 0.01476397
+
+2b:
+
+```{r}
+#wald test
+summary(logit_model)
+
+library(epitools)
+library(DescTools)
+
+#confidence interval
+OddsRatio(logit_model)
+
+```
+
+The z statistic for the wald test on the LI effect was 2.44 and p value  was 0.01464. This means that the coefficient value is likely non-zero, since our p value is low enough to reject the null hypothesis that the beta coefficient is zero. Thus, there is likely an effect of LI on remissions.
+
+The 95% confidence interval was [1.043,1.329], meaning that we are 95% confident that the true odds ratio is within that interval. 
+
+2c:
+
+```{r}
+
+library(lmtest)
+lrtest(logit_model)
+
+
+
+exp(confint(logit_model, level = 0.95))
+```
+
+The likelihood ratio test returned a chisquare statistic of 8.2988 and a p-value of 0.003967. This means that we can reject our null hypothesis, and that our model using 1 as a predictor of y fits the data better than our logistic regression model using the LI effect as a predictor.
+
+The confidence interval for the odds ratio was [1.0434402672,1.3293190]. This means that we are 95% confident that the true odds ratio is within the interval.
+
+2d:
+
+```{r}
+
+dataa <- read.csv("dataa.csv")
+
+grouped_model <-glm(formula = as.factor(remissions) ~ dataa$ï..LI + cases, family = "binomial", data = dataa)
+
+summary(grouped_model)
+
+lrtest(grouped_model)
+
+```
+
+The parameter estimates do change slightly (LI went from 0.14 to 0.16) as did the standard errors (0.0593 to 0.10699) and the null deviance (34.372  on 26 df to 19.408  on 13 df).
+
+The likelihood ratio test also does change. Our p value became 0.08, meaning that it is no longer statistically significant. Thus, we cannot be sure that the given model fits the data better than our new model, a positive result for the grouped data.
+
+
+**Question 3**
+
+```{r}
+
+crabs <- read.csv("crabs.csv")
+
+crabs_model <- glm(y~weight, data = crabs, family = "binomial")
+
+summary(crabs_model)
+```
+
+3a:
+
+
+ML Prediction equation:
+
+Logit(Y=1) = 1.8151(weight)-3.6947
+
+3b
+
+```{r}
+#wald test
+summary(crabs_model)
+
+#lr test
+lrtest(crabs_model)
+
+```
+The wald test returned a Z statistic of 4.819, and a p value of 1.45e^-6. The lr test returned a chi square stat of 30.021 and a p value of 4.273e-08 Thus, we can reject both null hypotheses and be sure with statistical significance that the coefficient on weight is not zero, and, that weight is a significant predictor of having a satellite (compared to the standard model). 
+
+3c:
+
+```{r}
+new_weight <- data.frame(
+  weight = c(1.2, 2.44, 5.20)
+)
+
+predict(crabs_model, new_weight, type = "response")
+```
+
+$$ \hat{\pi(1.20)} = 0.1799697 $$
+$$ \hat{\pi(2.44)} = 0.6757320$$
+$$ \hat{\pi(5.2)} = 0.9968084$$
+
+3d
+
+```{r}
+library(chemCal)
+inverse.predict(crabs_model, 0.5)
+```
+Weight = 2.31096
+
+
+3e
+
+```{r}
+1.8151 * 0.5 * 0.5
+1.8151 * 0.5 * 0.5 * 0.1
+1.8151 * 0.5 * 0.5 * 0.58
+```
+
+The estimated effect of a 1kg increase is 0.453775, a 0.1kg increase is 0.0453775 and a 0.58 kg increase is 0.2631895.
+
+3f
+
+```{r}
+
+exp(confint(crabs_model, level = 0.95))
+
+```
+
+Our confidence interval for the weight coefficient was [3.045879867 ,  13.4274964]. We are 95% confident that the true value of weight is within the interval. The coefficient is very likely positive, implying a positive association between weight and satellites.
+
+**Question 4**
+
+```{r}
+
+new_crab_model <- glm(y~color, data = crabs, family = "binomial")
+
+```
+
+4a:
+
+```{r}
+
+new_crab_model_factor <- glm(y~as.factor(color), data = crabs, family = "binomial")
+
+summary(new_crab_model_factor)
+
+```
+
+The prediction equation was logit(Y) = -0.1226(color2)-0.7309(color3)-1.8608(color4)+1.0986
+
+To compare the effects of the first vs fourth color on weight, simply plug into the prediction equation the desired color and get the output value to see how it will affect the number of satellite. If the color is the first color the intercept term will be returned. If it is one color then the value of 0 will be inputted into the other variables in the model:
+
+```{r}
+new_color <- data.frame(
+  color = c(1,4)
+)
+
+predict(new_crab_model_factor, new_color)
+
+```
+Our model predicts that crabs with the 1st color
+
+4b
+
+```{r}
+library(lmtest)
+lrtest(new_crab_model_factor)
+```
+
+
+This test returned a Chi square statistic of 13.698 and a p value of 0.003347. This means that we can conclude with statistical significance that our model fits the data better than the simpler default one, and that one of the colors has a significant effect on having satellites.
+
+4c:
+
+```{r}
+
+new_crab_model_numeric <- glm(y~as.numeric(color), data = crabs, family = "binomial")
+
+summary(new_crab_model_numeric)
+
+```
+
+
+The prediction equation was y = -0.7147(color) + 2.3635. Since the coefficient is negative, this model predicts that the likelihood of the crab having satellites decreases by -0.7147 units as the color increases.
+
+
+4d:
+
+```{r}
+
+summary(new_crab_model_numeric)
+
+lrtest(new_crab_model_numeric)
+```
+
+
+The wald hypothesis test for the color coefficient returned a pvalue of 0.000645. This means that we can conclude with statistical significance that the coefficient is not zero and that color does have an effect on the crabs having satellites.
+
+4e:
+
+When color is quantitative there is only 1 instead of 4 factors in the model, which decreases bias and reduces standard error, increasing power.
+
+However, color does not exist on a scale and is really qualitative, so a linear model is probably not appropriate and thus has worse fit.
+
+**Question 5**
+
+```{r}
+alcohol_data <- read.csv("alcohol.csv")
+```
+
+
+5a
+
+```{r}
+
+alcohol_data$personality <- paste(alcohol_data$ï..EI, alcohol_data$SN, alcohol_data$TF, alcohol_data$JP, sep ="")
+
+alcohol_data$prop_that_drinks <- alcohol_data$drink/alcohol_data$n
+
+a <- sort(alcohol_data$prop_that_drinks)
+
+
+#prop = 0.19047619, personality = ESTP
+```
+
+ESTP has the highest percentage that report drinking alcohol.
+
+5b:
+
+```{r}
+
+alc_model <- glm(prop_that_drinks ~ as.factor(alcohol_data$ï..EI)+
+                   as.factor(SN)+ as.factor(TF) + as.factor(JP)
+                 , data = alcohol_data)
+
+summary(alc_model)
+
+```
+
+For this model, I used the personality types as predictor variables, and treated them as factors since they are obviously categorical. The prediction equation was:
+
+logit(% who drink) = -0.05323(I) + -0.02120(S) + 0.03988(T) + 0.02267(P) + 0.10610
+
+If trying to predict for a personality that doesn't use one of the above ^ letters, just substitute zero in for that value into the prediction equation.
+
+
+This model appears to not fit the data very well. The p values for the coefficients were all above 0.05 except for the SN data, which did appear to be statistically significant. Thus we can only be certain with statistical significance that the coefficient of this variable is not zero, and thus that is has an effect on the percentage of people who drink.
+
+5c:
+
+```{r}
+lrtest(alc_model)
+
+```
+
+The likelihood ratio test returned a statistically significant p value of 0.01044. This means that we can definitely say that our model fits the data better than the saturated model.
+
+
+
+5d:
+
+Our model predicts that ENTP has the highest probability of drinking frequently. This is not the same as part A, which was ESTP. This is because our model considers the 4 different personality variables when fitting the model.
+
+**Question 6**
+
+6a:
+
+```{r}
+
+soret_data <- read.csv("soret.csv")
+
+main_effects <- glm(as.factor(soret_data$Y) ~ soret_data$D+as.factor(soret_data$T), family = "binomial")
+
+summary(main_effects)
+```
+
+The parameter estimate for the log odds duration was 0.06868, suggesting that longer surgeries are more likely to result in a sore throat. The parameter estimate for the type of device was -1.65895. This means that type of device is predicted to have a much larger influence on the probability of having a sore throat, decreasing it if a treacheal tube is used or increasing it if a mask airway is used. However, this parameter was not statistically significant, so we cannot be sure that its true value is not zero.
+
+
+B:
+
+The p value for the D effect was 0.00931, meaning that we can be sure that it is significant and that the true value of the parameter is not zero.
+
+6c:
+
+```{r}
+interaction_model <- glm(as.factor(soret_data$Y) ~ soret_data$D+as.factor(soret_data$T)+soret_data$D*as.factor(soret_data$T), family = "binomial")
+
+summary(interaction_model)
+```
+
+
+Prediction equation:
+
+logit(Y) = 0.02848(D)-4.47224(T) + 0.07460(D*T) 
+
+When T = 0, just input 0 in for T and those terms and the interaction term will have no weight on the model. When T = 1 input 1 into the equation. Interestingly, it appears that T = 1 has a large negative effect on Y with a coefficient of -4.47224, meaning that is has a large effect on the probability of having a sore throat, and decreases it. The interaction term has a positive coefficient, but since its value is small the interaction term will not have a large effect.
+
+6d:
+
+```{r}
+library(lmtest)
+lrtest(main_effects, interaction_model)
+
+```
+
+The likelihood ratio test returned a p value of 0.1777, meaning that we cannot be certain that our interaction model fits the data better than the previous model. It is unlikely that the interaction term is needed.
+
+
+6e:
+
+```{r}
+# Assume data saved as "SoreThroat" dataframe
+# Main effects model fit saved as m1, interaction model saved as m2
+
+sorethroat <- read.table(file="http://users.stat.ufl.edu/~aa/cat/data/SoreThroat.dat", header=T)
+
+m1 <- glm(Y~D+T, data=sorethroat, family="binomial")
+m2 <- glm(Y~D+T+D*T, data=sorethroat, family="binomial")
+
+x <- range(sorethroat$D)
+x <- seq(x[1], x[2])
+
+par(mfrow=c(1,2)); set.seed(21406);
+
+plot(jitter(Y,.2) ~ D, pch=2-T, data=sorethroat, ylab="Pr(SoreThroat)",xlab="Duration", main="Main effects model")
+
+curve(predict(m1, data.frame(D=x,T=1), type="response"), lty=1, add=T)
+curve(predict(m2, data.frame(D=x,T=0), type="response"), lty=2, add=T)
+legend("bottomright", inset=.05, pch=1:2, lty=1:2,legend=c("Tracheal tube", "Laryngeal mask"))
+
+plot(jitter(Y,.2) ~ D, pch=2-T, data=sorethroat, ylab="Pr(SoreThroat)",xlab="Duration", main="Interaction model")
+curve(predict(m1, data.frame(D=x,T=1), type="response"), lty=1, add=T)
+curve(predict(m2, data.frame(D=x,T=0), type="response"), lty=2, add=T)
+legend("bottomright", inset=.05, pch=1:2, lty=1:2,legend=c("Tracheal tube", "Laryngeal mask"))
+
+```
+
+
+These two graphs appear to be relatively similar. There does not appear to be any significant differences in duration of sore throat predicted in the interaction vs the main effects model.

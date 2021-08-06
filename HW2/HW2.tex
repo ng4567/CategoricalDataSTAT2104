@@ -1,0 +1,458 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={HW2},
+  pdfauthor={Nikhil Gopal},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{HW2}
+\author{Nikhil Gopal}
+\date{2/8/2021}
+
+\begin{document}
+\maketitle
+
+\textbf{Question 1}
+
+Estimate for odds ratio is about 220:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{setwd}\NormalTok{(}\StringTok{"C:/Users/d/Google Drive/Notability/Categorical Data/psets/HW2"}\NormalTok{)}
+
+\CommentTok{#Odds ratio: }
+
+\NormalTok{(}\DecValTok{802}\OperatorTok{*}\DecValTok{494}\NormalTok{) }\OperatorTok{/}\StringTok{ }\NormalTok{(}\DecValTok{34}\OperatorTok{*}\DecValTok{53}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 219.8602
+\end{verbatim}
+
+This means that someone who voted for Obama in 2008 was about 220 times
+more likely to vote for Obama in 2012 than someone who voted for McCain.
+
+\#95\% CI/OR
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(epitools)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'epitools' was built under R version 4.0.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{table<-}\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{802}\NormalTok{,}\DecValTok{34}\NormalTok{,}\DecValTok{53}\NormalTok{,}\DecValTok{494}\NormalTok{),}\DataTypeTok{nrow =} \DecValTok{2}\NormalTok{, }\DataTypeTok{ncol =} \DecValTok{2}\NormalTok{)}
+
+\KeywordTok{rownames}\NormalTok{(table) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Obama"}\NormalTok{, }\StringTok{"McCain"}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(table) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Obama"}\NormalTok{, }\StringTok{"Romney"}\NormalTok{)}
+
+\NormalTok{table}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        Obama Romney
+## Obama    802     53
+## McCain    34    494
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{oddsratio.wald}\NormalTok{(table)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## $data
+##        Obama Romney Total
+## Obama    802     53   855
+## McCain    34    494   528
+## Total    836    547  1383
+## 
+## $measure
+##                         NA
+## odds ratio with 95% C.I. estimate    lower    upper
+##                   Obama    1.0000       NA       NA
+##                   McCain 219.8602 140.8909 343.0917
+## 
+## $p.value
+##          NA
+## two-sided midp.exact  fisher.exact    chi.square
+##    Obama          NA            NA            NA
+##    McCain          0 1.673741e-263 1.327956e-228
+## 
+## $correction
+## [1] FALSE
+## 
+## attr(,"method")
+## [1] "Unconditional MLE & normal approximation (Wald) CI"
+\end{verbatim}
+
+The 95\% CI for the population odds-ratio was 140.89-343.0917. We are
+95\% confident that the true population odds ratio lies within the
+interval.
+
+\textbf{Question 2}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(DescTools)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'DescTools' was built under R version 4.0.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{table2<-}\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{871}\NormalTok{,}\DecValTok{347}\NormalTok{,}\DecValTok{821}\NormalTok{,}\DecValTok{42}\NormalTok{,}\DecValTok{336}\NormalTok{,}\DecValTok{83}\NormalTok{),}\DataTypeTok{nrow =} \DecValTok{2}\NormalTok{, }\DataTypeTok{ncol =} \DecValTok{3}\NormalTok{)}
+
+\KeywordTok{rownames}\NormalTok{(table2) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"White"}\NormalTok{, }\StringTok{"Black"}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(table2) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Democrat"}\NormalTok{, }\StringTok{"Republican"}\NormalTok{, }\StringTok{"Independent"}\NormalTok{)}
+
+\CommentTok{#Chi Square}
+\KeywordTok{chisq.test}\NormalTok{(table2)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Pearson's Chi-squared test
+## 
+## data:  table2
+## X-squared = 184.32, df = 2, p-value < 2.2e-16
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#Log-Likelihood}
+\NormalTok{DescTools}\OperatorTok{::}\KeywordTok{GTest}\NormalTok{(table2,}
+                 \DataTypeTok{correct =} \StringTok{"none"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Log likelihood ratio (G-test) test of independence without correction
+## 
+## data:  table2
+## G = 213.9, X-squared df = 2, p-value < 2.2e-16
+\end{verbatim}
+
+Both the Chi-square and Log-likelihood tests returned p values that were
+less than 0.01. We can thus conclude with statistical significance that
+there political affiliation and race are independent
+
+Residuals:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{chisq.test}\NormalTok{(table2)}\OperatorTok{$}\NormalTok{stdres}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        Democrat Republican Independent
+## White -11.96679   12.99946  -0.5326281
+## Black  11.96679  -12.99946   0.5326281
+\end{verbatim}
+
+Standardized residuals give the predicted-expected frequencies in a
+contigency table divided by the standard error. The residuals are
+standardized because dividing by standard error means that the residuals
+are normally distributed. For democrats, whites returned a residual of
+-11.966 and for Republicans blacks returned a residual of -12.999. Since
+these residuals are standardized, this provides extremely strong
+evidence that more people would be in these cells if party ID were
+independent of race, which helps provide more evidence against our null
+hypothesis that party is not independent of race.
+
+\textbf{Question 3}
+
+It is not valid to apply the Chi-square test for this table, since the
+same person can be in multiple columns. Participants were instructed to
+select however many columns they thought were true, which violates the
+independence assumption of the chi-square test.
+
+We are able to cross classify because we know how many people were
+sampled originally. subtracting the observed values from 100 will give
+us the number of people of each gender who said no to that variable
+being responsible for an increase in teenage crime.
+
+table for part c:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#contingency table for factor A}
+\NormalTok{table3 <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{60}\NormalTok{,}\DecValTok{75}\NormalTok{,}\DecValTok{100-60}\NormalTok{,}\DecValTok{100-75}\NormalTok{,}\DecValTok{100}\NormalTok{,}\DecValTok{100}\NormalTok{), }\DataTypeTok{nrow =} \DecValTok{2}\NormalTok{, }\DataTypeTok{ncol =} \DecValTok{3}\NormalTok{) }
+\KeywordTok{rownames}\NormalTok{(table3) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Men"}\NormalTok{, }\StringTok{"Women"}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(table3) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Y"}\NormalTok{, }\StringTok{"N"}\NormalTok{, }\StringTok{"Total"}\NormalTok{)}
+\NormalTok{table3}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        Y  N Total
+## Men   60 40   100
+## Women 75 25   100
+\end{verbatim}
+
+d:
+
+Odds ratio =
+
+\[=\frac{n_{11}n_{22}}{n_{12}n_{21}} = \frac{\frac{n_{1+}n_{+1}}{n}\frac{n_{2+}n_{+2}}{n}}{\frac{n_{1+}n_{+2}}{n}\frac{n_{2+}n_{+1}}{n}} = \frac{{\hat{\mu}}_{11}{\hat{\mu}}_{22}}{{\hat{\mu}}_{12}{\hat{\mu}}_{21}} = 1\]
+
+Therefore, \({\hat{\mu}}_{ij}\) satisfies the independence hypothesis.
+
+\textbf{Question 4}
+
+a:
+
+The sum of the other variables is multiplied by n, which means that as n
+increases, the X\^{}2 statistic will also increase.
+
+b:
+
+Chi square tests do not return different results for ordinal data. The
+test only factors in row and column totals, and not order/direction of
+the data, which means that the test cannot provide information about
+association.
+
+c:
+
+The estimated expected frequency of row i and column j:
+
+\[{\hat{\mu}}_{ij} = \frac{n_{i+}n_{+j}}{n}\]
+
+Total estimated expected frequency row i:,
+
+\[=\sum_{j}\frac{n_{i+}n_{+j}}{n} = \frac{n_{i+}}{n}\sum_{j} n_{+j} = n_{i+}\]
+
+Total estimated expected frequency of col j:
+
+\[=\sum_{i}\frac{n_{i+}n_{+j}}{n} = \frac{n_{+j}}{n}\sum_{i} n_{i+} = n_{+j}\]
+
+Thus, \(\{{\hat{\mu}}_{ij}\}\) have the same row and column totals as
+\(\{n_{ij}\}\).
+
+\textbf{Question 5}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{table5 <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{7}\NormalTok{,}\DecValTok{8}\NormalTok{,}\DecValTok{0}\NormalTok{,}\DecValTok{15}\NormalTok{),}\DataTypeTok{nrow =} \DecValTok{2}\NormalTok{, }\DataTypeTok{ncol =} \DecValTok{2}\NormalTok{)}
+\KeywordTok{rownames}\NormalTok{(table5) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Normalized serum"}\NormalTok{, }\StringTok{"Not Normalized"}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(table5) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Treatment"}\NormalTok{, }\StringTok{"Control"}\NormalTok{)}
+
+\KeywordTok{fisher.test}\NormalTok{(table5, }\DataTypeTok{alternative =} \StringTok{"greater"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Fisher's Exact Test for Count Data
+## 
+## data:  table5
+## p-value = 0.003161
+## alternative hypothesis: true odds ratio is greater than 1
+## 95 percent confidence interval:
+##  2.645931      Inf
+## sample estimates:
+## odds ratio 
+##        Inf
+\end{verbatim}
+
+Fisher's test gives us an exact p-value unlike the chi-square test which
+only gives an approximation. In this case, p = 0.003161. Since the p
+value is so low, we have extremely strong evidence against our Ho that
+there was no difference in results between treatment and control groups,
+meaning that results were significantly better in the treatment group.
+
+\textbf{Question 6}
+
+a:
+
+Let's imagine a situation in which Maine has more old people, and South
+Carolina has more poor people than Maine at every age group, but less
+old people. Poor people are more likely to die than rich people, leading
+to South Carolina having higher death rates across all age groups. Old
+people are more likely to die than young people, so in total Maine might
+have a higher total death rate since they have more old than young
+people.
+
+b:
+
+As explained by Simpson's paradox, this situation is possible:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{table6 <-}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{320}\NormalTok{,}\DecValTok{180}\NormalTok{,}\DecValTok{800}\NormalTok{,}\DecValTok{400}\NormalTok{,}\FloatTok{0.8}\NormalTok{,}\FloatTok{0.9}\NormalTok{,}\DecValTok{80}\NormalTok{,}\DecValTok{200}\NormalTok{,}\DecValTok{400}\NormalTok{,}\DecValTok{800}\NormalTok{,}\FloatTok{0.4}\NormalTok{,}\FloatTok{0.5}\NormalTok{,}\FloatTok{0.333}\NormalTok{,}\FloatTok{0.316}\NormalTok{), }\DataTypeTok{nrow =} \DecValTok{2}\NormalTok{, }\DataTypeTok{ncol =} \DecValTok{7}\NormalTok{)}
+\KeywordTok{rownames}\NormalTok{(table6) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Jones"}\NormalTok{, }\StringTok{"Simpson"}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(table6) <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\StringTok{"Hits '19"}\NormalTok{, }\StringTok{"At Bats '19"}\NormalTok{, }\StringTok{"BA '19"}\NormalTok{, }\StringTok{"Hits '20"}\NormalTok{, }\StringTok{"At Bats '20"}\NormalTok{, }\StringTok{"BA '20"}\NormalTok{, }\StringTok{"Total BA"}\NormalTok{)}
+
+\NormalTok{table6}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         Hits '19 At Bats '19 BA '19 Hits '20 At Bats '20 BA '20 Total BA
+## Jones        320         800    0.8       80         400    0.4    0.333
+## Simpson      180         400    0.9      200         800    0.5    0.316
+\end{verbatim}
+
+\textbf{Question 7}
+
+a:
+
+True. When 2 variables are independent the ratio of their odds is 1.
+
+b:
+
+True
+
+c:
+
+False. Odds ratio would be different if you used marijuana as the
+denominator instead of numerator when calculating the ratio, but it has
+nothing to do with if the variable is response or explanatory.
+
+d:
+
+True. Chi-square tests do not provide different results for ordinal data
+than nominal data.
+
+e:
+
+False. Two variables can be conditionally independent but not generally
+independent.
+
+f:
+
+true
+
+\textbf{Question 8}
+
+a:
+
+A slope of -0.0662 in the linear probability model indicates that the
+probability of the pitcher pitching a complete game is predicted to
+decrease by -0.0662 for each decade that passes.
+
+b:
+
+0.6930 − (0.0662*12) = -0.1014. Obviously a pitcher cannot have a
+negative probability of pitching a full game so this model is not valid
+for x = 12.
+
+c:
+
+\[P(Y) = \frac{e^(a+bX)}{1+e^(a+bX)}\]
+
+\[\hat{\pi} = \frac{exp(1.057-0.368*x)}{1+exp(1.057-0.368*x)} | x = 12, = 0.0336\]
+
+This prediction is obviously more plausible, since it has a positive
+value. A negative value is logically impossible.
+
+\end{document}
